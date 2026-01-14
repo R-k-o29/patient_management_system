@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from 'axios';
+import {toast,ToastContainer} from 'react-toastify';
 
 function App() {
   const[patientList,setpatientList]=useState([]);
@@ -11,15 +12,43 @@ function App() {
     blood:"",
     contact:"",
     dov:"",
+    _id:"",
     chronic:false
   })
 
   let insertData = (e)=>{
     e.preventDefault();
-    axios.post(`http://localhost:3002/api/patient/insert`,patientData).then(()=>{
-      alert("Patient details added");
+    if(patientData._id){
+      axios.put(`http://localhost:3002/api/patient/update/${patientData._id}`,patientData).then(()=>{
+        toast.success("Details updated successfully");
+        getAllData();
+        setpatientData({
+        id:"",
+        name:"",
+        dob:"",
+        blood:"",
+        contact:"",
+        dov:"",
+        _id:"",
+        chronic:false
+      })
+      })
+    }else{
+      axios.post(`http://localhost:3002/api/patient/insert`,patientData).then(()=>{
+      toast.success("Patient details added");
       getAllData();
+      setpatientData({
+        id:"",
+        name:"",
+        dob:"",
+        blood:"",
+        contact:"",
+        dov:"",
+        _id:"",
+        chronic:false
+      })
     })
+    }
   }
 
 
@@ -44,6 +73,23 @@ function App() {
   useEffect(()=>{
     getAllData();
   },[])
+
+  let deleteDetails = (id)=>{
+    axios.delete(`http://localhost:3002/api/patient/delete/${id}`).then(()=>{
+      toast.warn("Deleted patient details");
+      getAllData(); 
+    })
+  }
+
+  let getSingleDetail = (id)=>{
+    axios.get(`http://localhost:3002/api/patient/view/${id}`).then((res)=>{
+      return res.data;
+    }).then((data)=>{
+      if(data.status){
+        setpatientData(data.viewRes);
+      }
+    })
+  }
 
   return (
     <>
@@ -109,7 +155,8 @@ function App() {
               onChange={getValues}
                />
             </div>
-            <button type="submit" className='form-control mt-2 btn btn-success'>Add patient details</button>
+            <button type="submit" className='form-control mt-2 btn btn-success'>{
+            (patientData._id)?"Update patient details":"Add patient details"}</button>
           </form>
         </div>
         <div className='col-md-8 bg-dark text-white p-3 rounded'>
@@ -131,7 +178,7 @@ function App() {
               patientList.map((item,index)=>{
                 return(
                   <>
-                  <thead>
+                  <thead className='text-center align-middle'>
                     <tr>
                       <td>{index+1}</td>
                       <td>{item.id}</td>
@@ -140,10 +187,10 @@ function App() {
                       <td>{item.blood}</td>
                       <td>{item.contact}</td>
                       <td>{new Date(item.dov).toLocaleDateString("en-GB")}</td>
-                      <td>{item.chronic}</td>
+                      <td>{(item.chronic)?"Positive":"Negative"}</td>
                       <td>
-                        <button className='btn btn-warning m-1'>Edit</button>
-                        <button className='btn btn-danger m-1'>Delete</button>
+                        <button className='btn btn-warning m-1' onClick={()=>getSingleDetail(item._id)}>Edit</button>
+                        <button className='btn btn-danger m-1' onClick={()=>deleteDetails(item._id)}>Delete</button>
                       </td>
                     </tr>
                   </thead>
@@ -154,6 +201,7 @@ function App() {
           </table>
         </div>
       </div>
+      <ToastContainer/>
     </>
   )
 }

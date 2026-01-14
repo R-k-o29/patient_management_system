@@ -49,4 +49,14 @@ let updatePatient = async(req,res)=>{
     })
 }
 
-module.exports = {insertPatient,viewPatient,deletePatient,updatePatient};
+let viewSinglePatient = async(req,res)=>{
+    let id=req.params.id;
+    let viewRes=await patientModel.findById({_id:id});
+    res.send({
+        status:1,
+        msg:"Patient details : ",
+        viewRes
+    })
+}
+
+module.exports = {insertPatient,viewPatient,deletePatient,updatePatient,viewSinglePatient};
