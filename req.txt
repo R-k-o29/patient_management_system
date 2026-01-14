@@ -1,0 +1,20 @@
+Patient Management System (Healthcare)
+Objective: Create a secure portal for a medical clinic to track patient visits and histories.
+
+Business Scenario: A local clinic needs to register new patients, look up medical histories during appointments, update contact information, and archive records for patients who haven't visited in 5 years.
+
+Schema Fields:
+
+patientId: String (Unique)
+
+fullName: String
+
+dob: Date
+
+bloodGroup: String
+
+emergencyContact: Number
+
+lastVisitDate: Date
+
+isChronicCondition: Boolean
